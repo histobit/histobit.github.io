@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101923">
+  <meta name="description" content="Тест стратегии пересечения BTCUSDT и ETHUSDT со SMA(20) на дневных свечах Binance Vision.">
+  <title>BTCUSDT / ETHUSDT · SMA 20</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101923'/%3E%3Cpath d='M9 43h11l7-18 9 15 7-22 12 4' fill='none' stroke='%2365d4b0' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=20261008-1">
+</head>
+<body>
+  <section id="login" class="login-shell">
+    <div class="login-card">
+      <div class="brand-mark">∿</div>
+      <div class="eyebrow">BTCUSDT / ETHUSDT · 1D</div>
+      <h1>Тест стратегии<br>SMA 20</h1>
+      <p>Войдите, чтобы открыть расчет по дневным свечам.</p>
+      <form id="login-form">
+        <label>Клиент<input id="client" autocomplete="username" required autofocus></label>
+        <label>Пароль<input id="password" type="password" autocomplete="current-password" required></label>
+        <div id="login-error" class="form-error" role="alert"></div>
+        <button type="submit" class="button primary">Войти</button>
+      </form>
+      <div class="login-foot">Прототип · доступ 123 / 123</div>
+    </div>
+  </section>
+
+  <main id="dashboard" hidden>
+    <header class="topbar">
+      <div class="topbrand"><span class="topmark">∿</span><span>STRATEGY<span class="muted"> / LAB</span></span></div>
+      <div class="topright"><span class="market-pill"><span class="market-dot"></span><span id="market-symbol">BTCUSDT</span> · SPOT · 1D</span><button id="logout" class="text-button">Выйти</button></div>
+    </header>
+    <div class="content">
+      <div class="page-heading">
+        <div><div class="eyebrow">BACKTEST / ПЕРЕСЕЧЕНИЕ</div><h1>Стратегия SMA 20</h1><p class="subhead">Покупка и продажа на пересечении цены закрытия со средней предыдущих 20 дней.</p></div>
+        <div class="source">Источник <a id="source-link" href="https://data.binance.vision/?prefix=data/spot/daily/klines/BTCUSDT/1d/" target="_blank" rel="noreferrer">Binance Vision ↗</a></div>
+      </div>
+      <section class="settings panel" aria-label="Параметры теста">
+        <div class="settings-title"><span class="section-icon">◷</span><span>Параметры теста</span></div>
+        <div class="settings-fields">
+          <label>Пара <select id="pair" aria-label="Торговая пара"><option value="BTCUSDT">BTCUSDT</option><option value="ETHUSDT">ETHUSDT</option></select></label>
+          <label>С <input type="date" id="from" min="2022-01-01"></label>
+          <label>По <input type="date" id="to"></label>
+          <label>Депозит, $ <input type="number" id="deposit" value="100000" min="1" step="100" inputmode="decimal"></label>
+          <label>Сделка, $ <input type="number" id="trade-size" value="100000" min="1" step="100" inputmode="decimal"></label>
+          <label>TP, % <input type="number" id="take-profit" value="4" min="0.01" max="500" step="0.1" inputmode="decimal"></label>
+          <label>SL, % <input type="number" id="stop-loss" value="2" min="0.01" max="99.99" step="0.1" inputmode="decimal"></label>
+          <label>Свечи <input type="number" id="max-candles" value="4" min="0" max="10000" step="1" inputmode="numeric"></label>
+          <label>Комиссия, % <input type="number" id="fee-rate" value="0.1" min="0" max="10" step="0.01" inputmode="decimal"></label>
+        </div>
+        <div class="settings-actions"><div><span>Свечи = 0: выход только по TP или SL</span><div id="data-status" class="data-status" role="status">Данные загружаются…</div></div><button id="recalc" class="button primary">Пересчитать</button></div>
+      </section>
+      <div id="data-error" class="data-error" hidden></div>
+      <section class="kpi-grid" aria-label="Основные показатели">
+        <article class="kpi panel featured"><div class="kpi-label">Капитал после стратегии</div><div id="final-equity" class="kpi-value">—</div><div id="strategy-return" class="kpi-sub">—</div><div id="equity-note" class="kpi-start">Старт $100 000</div></article>
+        <article class="kpi panel"><div class="kpi-label">Количество сделок</div><div id="trade-count" class="kpi-value">—</div><div id="win-loss" class="kpi-sub">—</div></article>
+        <article class="kpi panel"><div class="kpi-label">Средняя доходность</div><div id="avg-return" class="kpi-value">—</div><div class="kpi-sub">На сделку после комиссии</div></article>
+        <article class="kpi panel"><div class="kpi-label">Купил и держал</div><div id="hold-equity" class="kpi-value">—</div><div id="hold-return" class="kpi-sub">—</div></article>
+      </section>
+      <div class="analysis-grid">
+        <section class="panel chart-panel">
+          <div class="panel-head"><div><div class="eyebrow">СРАВНЕНИЕ</div><h2>Капитал по дням</h2></div><div class="legend"><span><i class="line green"></i>Стратегия</span><span><i class="line blue"></i>Купил и держал</span><span><i class="marker-key entry"></i>Вход</span><span><i class="marker-key exit"></i>Выход</span><span><i class="marker-key open"></i>Открыта</span></div></div>
+          <div class="chart-wrap"><svg id="equity-chart" viewBox="0 0 900 300" preserveAspectRatio="none" role="img" aria-label="График капитала стратегии и удержания BTC"></svg></div>
+          <div id="chart-trade-detail" class="chart-trade-detail" aria-live="polite">Наведите или нажмите на отметку сделки, чтобы увидеть детали.</div>
+          <div class="chart-foot"><span id="chart-start">—</span><span id="chart-end">—</span></div>
+        </section>
+        <section class="panel benchmark-panel">
+          <div class="eyebrow">БЕНЧМАРК</div><h2 id="benchmark-title">Удержание BTC</h2>
+          <div class="bench-price"><span>Цена покупки</span><strong id="buy-price">—</strong></div>
+          <div class="bench-price"><span>Цена в конце периода</span><strong id="end-price">—</strong></div>
+          <div class="bench-divider"></div>
+          <div class="bench-main"><span>Доход / убыток после комиссии</span><strong id="hold-pnl">—</strong></div>
+          <div class="bench-main"><span>Макс. просадка</span><strong id="hold-dd">—</strong></div>
+          <p class="method-note">Покупка по закрытию первого дня и продажа по закрытию последнего. Доходность учитывает комиссию на обеих операциях; просадка рассчитана по стоимости закрытия позиции каждый день.</p>
+        </section>
+      </div>
+      <section class="panel conclusions" aria-labelledby="conclusions-title">
+        <div class="conclusions-heading"><div class="eyebrow">РЕЗУЛЬТАТ ТЕСТА</div><h2 id="conclusions-title">Итоговые выводы</h2></div>
+        <div class="conclusions-grid">
+          <div class="conclusion-item"><span class="conclusion-number">01</span><div><h3>Стратегия</h3><p id="conclusion-strategy">—</p></div></div>
+          <div class="conclusion-item"><span class="conclusion-number">02</span><div><h3 id="comparison-title">Сравнение с BTC</h3><p id="conclusion-benchmark">—</p></div></div>
+          <div class="conclusion-item"><span class="conclusion-number">03</span><div><h3>Сделки и риск</h3><p id="conclusion-risk">—</p></div></div>
+        </div>
+      </section>
+      <section class="panel trades-panel">
+        <div class="panel-head"><div><div class="eyebrow">ЖУРНАЛ</div><h2>Сделки</h2></div><span id="trades-summary" class="table-summary">—</span></div>
+        <div class="table-wrap"><table><thead><tr><th>№</th><th>Направление</th><th>Вход</th><th>Цена входа</th><th>Выход</th><th>Цена выхода</th><th>Причина</th><th>Комиссия</th><th>Результат после комиссии</th></tr></thead><tbody id="trades-body"></tbody></table></div>
+        <div class="pagination"><button id="prev-page" class="page-button">Назад</button><span id="page-label"></span><button id="next-page" class="page-button">Далее</button></div>
+      </section>
+      <section class="rules panel"><div><div class="eyebrow">МЕТОДИКА</div><h2>Правила расчета</h2></div><div class="rules-copy"><p>SMA каждого дня — среднее закрытий <strong>20 предыдущих свечей</strong>, текущая в расчет не входит. Для сигнала сравниваются закрытие предыдущего дня с его SMA и закрытие текущего дня с его SMA. Равенство не считается пересечением.</p><p>Вход по закрытию сигнальной свечи. Тейк и стоп проверяются по максимуму и минимуму следующих свечей; если оба уровня достигнуты в один день, первым считается стоп. При положительном числе свечей выход по закрытию последней из них, если TP и SL не сработали. При нуле ограничения по времени нет: выход происходит только по TP или SL. После выхода поиск нового сигнала начинается со следующего дня.</p><p>Номинал сделки задается отдельно от депозита и не реинвестируется. Комиссия списывается при входе с номинала сделки и при выходе со стоимости закрываемой позиции. Капитал на графике учитывает текущую оценку открытой позиции по дневному закрытию без будущей комиссии выхода. Такая позиция показана в журнале, но не входит в число завершенных сделок. Проскальзывание, маржинальные требования и стоимость заемных средств не учтены.</p></div></section>
+      <footer><span id="footer-symbol">BTCUSDT</span> · дневные свечи Binance Vision · исследовательский прототип</footer>
+    </div>
+  </main>
+  <script src="app.js?v=20261008-1"></script>
+</body>
+</html>
